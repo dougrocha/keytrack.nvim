@@ -3,8 +3,9 @@ local Utils = {}
 ---@class Command
 ---@field lhs string: Left hand side (Should be equivalent to key in array)
 ---@field desc string: Command description
----@field rhs? string: Right hand side of command
----@field callback? function: Lua equivalent to rhs
+---@field rhs string|nil: Right hand side of command
+---@field callback function|nil: Lua equivalent to rhs
+---@field noremap boolean: Noremap value
 
 ---Returns all possible commands in normal mode (global and current buffer)
 ---@param mode string
@@ -16,9 +17,11 @@ Utils.get_all_commands = function(mode)
   for _, keymap in ipairs(vim.api.nvim_get_keymap(mode)) do
     local lhs = Utils.replace_term_codes(keymap.lhsraw)
     local data = res[lhs] or {}
+    data.lhs = lhs
     data.desc = keymap.desc or ""
     data.rhs = keymap.rhs or nil
     data.callback = keymap.callback or nil
+    data.noremap = keymap.noremap or false
 
     res[lhs] = data
   end
@@ -26,9 +29,11 @@ Utils.get_all_commands = function(mode)
   for _, keymap in ipairs(vim.api.nvim_buf_get_keymap(0, mode)) do
     local lhs = Utils.replace_term_codes(keymap.lhsraw)
     local data = res[lhs] or {}
+    data.lhs = lhs
     data.desc = keymap.desc or ""
     data.rhs = keymap.rhs or nil
     data.callback = keymap.callback or nil
+    data.noremap = keymap.noremap or false
 
     res[lhs] = data
   end
@@ -52,6 +57,39 @@ end
 Utils.keytrans = function(x)
   local res = x:gsub("<lt>", "<")
   return res
+end
+
+---Clean up rhs by removing `<Cmd>` and `<CR>`
+---@param rhs_str string
+---@return string
+Utils.clean_up_rhs = function(rhs_str)
+  local rhs = string.gsub(rhs_str, "<Cmd>", "")
+  rhs = string.gsub(rhs, "<CR>", "")
+  return rhs
+end
+
+---Parse cmd and args for rhs
+---@param str string
+---@return string
+---@return string[]
+Utils.parse_cmd_and_args = function(str)
+  -- Split the string into words
+  local words = {}
+  for word in str:gmatch("%S+") do
+    table.insert(words, word)
+  end
+
+  -- Extract the first word
+  ---@type string
+  local cmd = words[1]
+
+  -- Extract the arguments (if any)
+  local args = {}
+  for i = 2, #words do
+    table.insert(args, words[i])
+  end
+
+  return cmd, args
 end
 
 return Utils
