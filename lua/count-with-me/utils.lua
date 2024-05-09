@@ -1,26 +1,24 @@
 local Utils = {}
 
-Utils.cmds_cache = {}
+---@class Command
+---@field lhs string: Left hand side (Should be equivalent to key in array)
+---@field desc string: Command description
+---@field rhs? string: Right hand side of command
+---@field callback? function: Lua equivalent to rhs
 
+---Returns all possible commands in normal mode (global and current buffer)
 ---@param mode string
-Utils.get_all_commands = function(mode, clues)
+---@return Command[]
+Utils.get_all_commands = function(mode)
+  ---@type Command[]
   local res = {}
-
-  local config_clues = clues
-  for _, keymap in ipairs(config_clues) do
-    local lhs = Utils.replace_term_codes(keymap.key)
-    local data = res[lhs] or {}
-    data.desc = keymap.desc or ""
-    data.rhs = keymap.rhs or ""
-
-    res[lhs] = data
-  end
 
   for _, keymap in ipairs(vim.api.nvim_get_keymap(mode)) do
     local lhs = Utils.replace_term_codes(keymap.lhsraw)
     local data = res[lhs] or {}
     data.desc = keymap.desc or ""
-    data.rhs = keymap.rhs or ""
+    data.rhs = keymap.rhs or nil
+    data.callback = keymap.callback or nil
 
     res[lhs] = data
   end
@@ -29,7 +27,8 @@ Utils.get_all_commands = function(mode, clues)
     local lhs = Utils.replace_term_codes(keymap.lhsraw)
     local data = res[lhs] or {}
     data.desc = keymap.desc or ""
-    data.rhs = keymap.rhs or ""
+    data.rhs = keymap.rhs or nil
+    data.callback = keymap.callback or nil
 
     res[lhs] = data
   end
@@ -37,16 +36,9 @@ Utils.get_all_commands = function(mode, clues)
   return res
 end
 
-Utils.filter_by_query = function(cmds, query)
-  local key = H.temp_state.concat(query, "")
-  for cmd_key, _ in pairs(cmds) do
-    if not vim.startswith(cmd_key, key) then
-      cmds[cmd_key] = nil
-    end
-  end
-  return cmds
-end
-
+---Replaces terminal codes and key codes with respective values
+---@param str string
+---@return string|nil
 Utils.replace_term_codes = function(str)
   if str == nil then
     return nil
@@ -55,12 +47,8 @@ Utils.replace_term_codes = function(str)
   return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
----Replace <Leader> with leader value
-Utils.sanitize_input = function(str)
-  local res = str:gsub("<leader>", vim.g.mapleader)
-  return res
-end
-
+---@param x string
+---@return string
 Utils.keytrans = function(x)
   local res = x:gsub("<lt>", "<")
   return res

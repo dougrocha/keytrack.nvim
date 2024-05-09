@@ -1,185 +1,133 @@
+local Tracking = require("count-with-me.tracking")
 local Utils = require("count-with-me.utils")
 
 ---@class CountWithMe
 local M = {}
 local H = {}
 
+---@class Track
+---@field key string: lhs of command
+---@field desc string: description of command (may not be used)
+
+---Config for CountWithMe
 ---@class CountWithMeConfig
----@field triggers table
----@field clues table
+---@field track? Track[]
+---@field suffix? string: Add suffix to command description when tracking
 M.config = {
-  --- trigger to activate plugin
-  triggers = {
-    { mode = "n", key = "<Leader>" },
-  },
   -- Array of keybinds to keep track of
-  clues = {
-    { key = "<Leader>sf", desc = "Testing thing" },
-    { key = "<Leader>fw", desc = "Testing another thing" },
+  track = {
+    { key = "<leader>sf", desc = "Search Files with telescope" },
+    { key = "<leader>a", desc = "Add harpoon file" },
   },
+  suffix = "Tracking",
 }
-
-H.state = {
-  trigger = nil,
-  clues = {},
-  raw_query = {},
-}
-
----Predetermined keys
-H.keys = {
-  BS = vim.api.nvim_replace_termcodes("<BS>", true, true, true),
-  CR = vim.api.nvim_replace_termcodes("<CR>", true, true, true),
-  EXIT = vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, true, true),
-}
-
-H.reset_state = function()
-  H.state.trigger = nil
-  H.state.clues = {}
-  H.state.raw_query = {}
-end
-
-H.set_state = function(trigger, key)
-  H.state.trigger = trigger
-  H.state.raw_query = key
-  H.state.clues = H.get_next_clues(key)
-end
-
-H.pop_state = function()
-  -- remove last item in raw_query
-  H.state.raw_query[#H.state.raw_query] = nil
-  H.state.clues = H.get_next_clues(H.state.raw_query)
-end
-
-H.push_state = function(key)
-  table.insert(H.state.raw_query, key)
-  H.state.clues = H.get_next_clues(H.state.raw_query)
-end
-
-H.is_state_runnable = function()
-  local query = table.concat(H.state.raw_query, "")
-
-  if H.state.clues[query] then
-    return true
-  end
-
-  return false
-end
-
-H.get_next_clues = function(key)
-  local filtered_res = Utils.filter_by_query(Utils.cmds_cache, key)
-  return filtered_res
-end
-
-H.advance_state = function()
-  local input_key = H.getcharstr()
-
-  if input_key == nil then
-    return H.reset_state()
-  end
-
-  if input_key == H.keys.BS then
-    H.pop_state()
-  else
-    H.push_state(input_key)
-  end
-
-  -- handle query being at a keymap
-  if H.is_state_runnable() then
-    return H.execute_state()
-  end
-
-  if #H.state.raw_query == 0 then
-    return H.reset_state()
-  end
-
-  if vim.tbl_count(H.state.clues) >= 1 then
-    return H.advance_state()
-  end
-
-  H.execute_state()
-end
-
-H.temp_state = {}
-
----Execute Command
-H.execute_state = function()
-  local keys = table.concat(H.state.raw_query, "")
-  local trigger = H.state.trigger
-
-  -- remove trigger
-  M.remove_trigger(trigger)
-
-  --run keymap
-  --m = remap keys
-  --i = insert instead of append
-  --t = handle keys as if user typed them
-  --escape_ks is true since we already configured keys with replace_term_codes
-  vim.api.nvim_feedkeys(keys, "mit", true)
-
-  ---handle counting of cmds
-  if H.temp_state[keys] == nil then
-    H.temp_state[keys] = { count = 1 }
-  else
-    H.temp_state[keys].count = H.temp_state[keys].count + 1
-  end
-
-  P(H.temp_state)
-
-  --schedule register trigger after keymap has ran
-  vim.schedule(function()
-    M.register_trigger(trigger)
-  end)
-end
-
-H.getcharstr = function()
-  local ok, char = pcall(vim.fn.getcharstr)
-  if not ok or char == "\27" or char == "" then
-    return
-  end
-  return char
-end
 
 ---Count With Me Setup
 ---@param config CountWithMeConfig|nil CountWithMe config table. See |CountWithMe.config|.
 M.setup = function(config)
+  vim.validate({
+    config = { config.track, "table", true },
+    suffix = { config.suffix, "string", true },
+  })
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.config), config or {})
 
-  -- use a cmd cache to store all cmds and clues
-  Utils.cmds_cache = Utils.get_all_commands("n", M.config.clues)
-
-  M.register_triggers(M.config.triggers)
+  M.check_trackers()
+  H.setup_autocommands()
 end
 
----@param trigger table
-M.remove_trigger = function(trigger)
-  trigger.key = Utils.replace_term_codes(trigger.key)
-  local key = Utils.keytrans(trigger.key)
+H.setup_autocommands = function()
+  local au_group = vim.api.nvim_create_augroup("CountWithMe", {})
 
-  vim.keymap.del("n", key, {})
+  local cb = vim.schedule_wrap(function()
+    M.check_trackers()
+  end)
+
+  vim.api.nvim_create_autocmd({ "BufAdd", "LspAttach" }, {
+    group = au_group,
+    pattern = "*",
+    callback = cb,
+    desc = "Check all triggers",
+  })
 end
 
----Register a single trigger
----@param trigger table
-M.register_trigger = function(trigger)
-  trigger.key = Utils.replace_term_codes(trigger.key)
-  local key = Utils.keytrans(trigger.key)
+---Remove trackers and re-register them
+M.check_trackers = function()
+  M.remove_all_trackers()
+  M.register_all_trackeres()
+end
 
-  local trigger_rhs = function()
-    H.set_state(trigger, { trigger.key })
+---Remove all trackers
+M.remove_all_trackers = function()
+  for _, trigger in ipairs(M.config.track) do
+    M.remove_tracker(trigger)
+  end
+end
 
-    H.advance_state()
+---@param tracker Track
+M.remove_tracker = function(tracker)
+  tracker.key = Utils.replace_term_codes(tracker.key)
+  local key = Utils.keytrans(tracker.key)
+
+  if H.commands_without_tracker[key] then
+    local cmd = H.commands_without_tracker[key]
+    pcall(vim.keymap.del, "n", key, {})
+
+    local rhs = cmd.rhs or cmd.callback or ""
+
+    local desc = cmd.desc or ""
+    local opts = { desc = desc }
+    pcall(vim.keymap.set, "n", key, rhs, opts)
+
+    H.commands_without_tracker[key] = nil
+  end
+end
+
+---Stores the regular commands so I can remove the track and revert it back to normal
+---@type Command[]
+H.commands_without_tracker = {}
+
+---Register a single tracker
+---@param tracker Track
+M.register_trackers = function(tracker)
+  local cmds = Utils.get_all_commands("m")
+  tracker.key = Utils.replace_term_codes(tracker.key)
+  local key = Utils.keytrans(tracker.key)
+
+  local cmd = cmds[key]
+
+  if cmd == nil then
+    return
   end
 
-  local desc = "Query keys for " .. key
+  -- save command
+  H.commands_without_tracker[key] = cmd
+
+  local tracker_rhs = function()
+    -- handle tracking
+    Tracking.track(cmd)
+
+    if cmd.rhs then
+      local rhs = cmd.rhs:gsub("<cmd>", "")
+      rhs = rhs:sub("<cr>", "")
+      vim.api.nvim_exec2(rhs, {})
+      return
+    end
+
+    if cmd.callback then
+      cmd.callback()
+      return
+    end
+  end
+
+  local desc = cmd.desc .. " (tracked)"
   local opts = { nowait = true, desc = desc }
-  vim.keymap.set("n", key, trigger_rhs, opts)
+  vim.keymap.set("n", key, tracker_rhs, opts)
 end
 
 ---Register multiple triggers
----@param triggers table
-M.register_triggers = function(triggers)
-  for _, trigger in ipairs(triggers) do
-    M.register_trigger(trigger)
+M.register_all_trackeres = function()
+  for _, tracker in ipairs(M.config.track) do
+    M.register_trackers(tracker)
   end
 end
 
