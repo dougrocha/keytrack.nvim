@@ -14,7 +14,7 @@ local M = {}
 
 M.data_path = data_path
 
----@type CommandWithCount[]
+---@type table<string, CommandWithCount>
 M.cached_tracked = {}
 
 ---Transform cmd to key string
@@ -101,7 +101,7 @@ M.load_file = function()
 
   if not ok then
     M.cached_tracked = {}
-    pcall(write_file, file_path, vim.fn.json_encode(M.cached_tracked))
+    pcall(write_file, json_path, vim.fn.json_encode(M.cached_tracked))
     return
   end
 
