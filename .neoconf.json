@@ -1,7 +1,10 @@
 {
     "neodev": {
         "library": {
-            "plugin": []
+            "enabled": true,
+            "plugins": [
+                "plenary.nvim"
+            ]
         }
     },
     "lspconfig": {

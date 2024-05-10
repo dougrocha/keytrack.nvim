@@ -1,5 +1,5 @@
-local Tracking = require("count-with-me.tracking")
-local Utils = require("count-with-me.utils")
+local Tracker = require("count-with-me.tracker")
+local Utils = require("count-with-me.util")
 
 ---@class CountWithMe
 local M = {}
@@ -49,6 +49,15 @@ H.setup_autocommands = function()
     group = au_group,
     pattern = "*",
     callback = cb,
+    desc = "Check all triggers",
+  })
+
+  vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+    group = au_group,
+    pattern = "*",
+    callback = vim.schedule_wrap(function()
+      -- handle saving tracking buffer to file
+    end),
     desc = "Check all triggers",
   })
 end
@@ -118,7 +127,7 @@ M.register_trackers = function(tracker)
 
   local tracked_rhs = function()
     -- handle tracking
-    Tracking.track(cmd)
+    Tracker.increment_entry(cmd)
 
     if cmd.rhs then
       local parsed_rhs = Utils.clean_up_rhs(cmd.rhs)

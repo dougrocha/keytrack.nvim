@@ -1,4 +1,4 @@
-local Utils = {}
+local M = {}
 
 ---@class Command
 ---@field lhs string: Left hand side (Should be equivalent to key in array)
@@ -10,12 +10,12 @@ local Utils = {}
 ---Returns all possible commands in normal mode (global and current buffer)
 ---@param mode string
 ---@return Command[]
-Utils.get_all_commands = function(mode)
+M.get_all_commands = function(mode)
   ---@type Command[]
   local res = {}
 
   for _, keymap in ipairs(vim.api.nvim_get_keymap(mode)) do
-    local lhs = Utils.replace_term_codes(keymap.lhsraw)
+    local lhs = M.replace_term_codes(keymap.lhsraw)
     local data = res[lhs] or {}
     data.lhs = lhs
     data.desc = keymap.desc or ""
@@ -27,7 +27,7 @@ Utils.get_all_commands = function(mode)
   end
 
   for _, keymap in ipairs(vim.api.nvim_buf_get_keymap(0, mode)) do
-    local lhs = Utils.replace_term_codes(keymap.lhsraw)
+    local lhs = M.replace_term_codes(keymap.lhsraw)
     local data = res[lhs] or {}
     data.lhs = lhs
     data.desc = keymap.desc or ""
@@ -44,7 +44,7 @@ end
 ---Replaces terminal codes and key codes with respective values
 ---@param str string
 ---@return string|nil
-Utils.replace_term_codes = function(str)
+M.replace_term_codes = function(str)
   if str == nil then
     return nil
   end
@@ -54,7 +54,7 @@ end
 
 ---@param x string
 ---@return string
-Utils.keytrans = function(x)
+M.keytrans = function(x)
   local res = x:gsub("<lt>", "<")
   return res
 end
@@ -62,7 +62,7 @@ end
 ---Clean up rhs by removing `<Cmd>` and `<CR>`
 ---@param rhs_str string
 ---@return string
-Utils.clean_up_rhs = function(rhs_str)
+M.clean_up_rhs = function(rhs_str)
   local rhs = string.gsub(rhs_str, "<Cmd>", "")
   rhs = string.gsub(rhs, "<CR>", "")
   return rhs
@@ -72,7 +72,7 @@ end
 ---@param str string
 ---@return string
 ---@return string[]
-Utils.parse_cmd_and_args = function(str)
+M.parse_cmd_and_args = function(str)
   -- Split the string into words
   local words = {}
   for word in str:gmatch("%S+") do
@@ -92,4 +92,4 @@ Utils.parse_cmd_and_args = function(str)
   return cmd, args
 end
 
-return Utils
+return M
