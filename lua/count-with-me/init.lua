@@ -15,24 +15,16 @@ local H = {}
 ---@field suffix? string: Add suffix to command description when tracking
 M.config = {
   -- Array of keybinds to keep track of
-  active = {
-    { key = "<leader>sf", desc = "Search Files with telescope" },
-    { key = "<leader>a", desc = "Add harpoon file" },
-    { key = "<leader>fw", desc = "Search for word under cursor" },
-    { key = "<leader>/", desc = "Grep workspace" },
-    { key = "<leader>bn", desc = "Next buffer" },
-  },
-  suffix = "Tracking",
+  active = {},
+  suffix = "",
 }
 
 ---Count With Me Setup
 ---@param config CountWithMeConfig CountWithMe config table. See |CountWithMe.config|.
 M.setup = function(config)
-  vim.validate({
-    config = { config.active, "table", true },
-    suffix = { config.suffix, "string", true },
-  })
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.config), config or {})
+
+  Tracker.load_file()
 
   H.cmds_cache = Utils.get_all_commands("m")
   H.setup_autocommands()
@@ -52,11 +44,11 @@ H.setup_autocommands = function()
     desc = "Check all triggers",
   })
 
-  vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+  vim.api.nvim_create_autocmd({ "BufLeave", "VimLeave" }, {
     group = au_group,
     pattern = "*",
     callback = vim.schedule_wrap(function()
-      -- handle saving tracking buffer to file
+      Tracker.save_to_file()
     end),
     desc = "Check all triggers",
   })
@@ -124,6 +116,7 @@ M.register_trackers = function(tracker)
 
   -- save command
   H.pre_track_cmds[key] = cmd
+  Tracker.add_entry(cmd)
 
   local tracked_rhs = function()
     -- handle tracking
@@ -131,8 +124,8 @@ M.register_trackers = function(tracker)
 
     if cmd.rhs then
       local parsed_rhs = Utils.clean_up_rhs(cmd.rhs)
-      local cmd, args = Utils.parse_cmd_and_args(parsed_rhs)
-      vim.cmd({ cmd = cmd, args = args })
+      local parsed_cmd, args = Utils.parse_cmd_and_args(parsed_rhs)
+      vim.cmd({ cmd = parsed_cmd, args = args })
 
       return
     end
