@@ -92,4 +92,26 @@ M.parse_cmd_and_args = function(str)
   return cmd, args
 end
 
+-- local test = function()
+--   local mode = "n"
+--
+--   local data = {}
+--
+--   for _, keymap in ipairs(vim.api.nvim_get_keymap(mode)) do
+--     if (keymap.rhs ~= nil and keymap.rhs ~= "") or keymap.callback ~= nil then
+--       P(keymap)
+--     end
+--   end
+--
+--   for _, keymap in ipairs(vim.api.nvim_buf_get_keymap(0, mode)) do
+--     if (keymap.rhs ~= nil and keymap.rhs ~= "") or keymap.callback ~= nil then
+--       P(keymap)
+--     end
+--   end
+--
+--   P(data)
+-- end
+--
+-- test()
+
 return M

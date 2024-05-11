@@ -1,4 +1,5 @@
 local Tracker = require("count-with-me.tracker")
+local UI = require("count-with-me.ui")
 local Utils = require("count-with-me.util")
 
 ---@class CountWithMe
@@ -28,6 +29,14 @@ M.setup = function(config)
 
   H.cmds_cache = Utils.get_all_commands("m")
   H.setup_autocommands()
+end
+
+M.open_window = function()
+  UI.open()
+end
+
+M.close_window = function()
+  UI.close()
 end
 
 H.setup_autocommands = function()

@@ -1,3 +1,5 @@
+local Tracker = require("count-with-me.tracker")
+
 local M = {}
 
 ---@class UI
@@ -35,10 +37,12 @@ M.create_window = function()
   M.ui.buf_id = buf_id
   M.ui.win_id = win_id
 
+  vim.api.nvim_set_option_value("scrolloff", 2, { win = win_id })
   vim.api.nvim_set_option_value("filetype", "count-with-me", {
     buf = buf_id,
   })
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf_id })
+
   vim.api.nvim_buf_set_keymap(buf_id, "n", "<Esc>", "", { silent = true, callback = M.close })
   vim.api.nvim_buf_set_keymap(buf_id, "n", "q", "", { silent = true, callback = M.close })
 
@@ -48,8 +52,21 @@ end
 M.open = function()
   local _, buf_id = M.create_window()
 
-  local data = { "data here", "data also here", " ", "date maybe here" }
+  ---@type string[]
+  local data = {}
+
+  for _, cmd in pairs(Tracker.cached_tracked) do
+    local lhs = cmd.lhs
+    local count = cmd.count
+    local desc = cmd.desc
+
+    local line = string.format("%s - %d: %s", lhs, count, desc)
+    table.insert(data, line)
+  end
+
   vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, data)
+  vim.api.nvim_set_option_value("modifiable", false, { buf = buf_id })
+  vim.api.nvim_set_option_value("readonly", true, { buf = buf_id })
 end
 
 M.close = function()
@@ -66,7 +83,5 @@ M.close = function()
   ui.buf_id = nil
   ui.win_id = nil
 end
-
-M.open()
 
 return M

@@ -8,11 +8,10 @@
 local Path = require("plenary.path")
 
 local data_path = vim.fn.stdpath("data")
-local json_path = data_path .. "\\count-with-me.json"
 
 local M = {}
 
-M.data_path = data_path
+M.data_path = data_path .. "\\count-with-me.json"
 
 ---@type table<string, CommandWithCount>
 M.cached_tracked = {}
@@ -97,11 +96,11 @@ local function read_file(file_path)
 end
 
 M.load_file = function()
-  local ok, data = pcall(read_file, json_path)
+  local ok, data = pcall(read_file, M.data_path)
 
   if not ok then
     M.cached_tracked = {}
-    pcall(write_file, json_path, vim.fn.json_encode(M.cached_tracked))
+    pcall(write_file, M.data_path, vim.fn.json_encode(M.cached_tracked))
     return
   end
 
@@ -116,7 +115,7 @@ M.save_to_file = function()
     val.lhs = val.lhs:gsub(" ", "<leader>")
   end
 
-  pcall(write_file, json_path, vim.fn.json_encode(data))
+  pcall(write_file, M.data_path, vim.fn.json_encode(data))
 end
 
 return M
