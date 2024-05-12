@@ -61,10 +61,3 @@ Currently, you have to opt-in for each keymap you want to track.
     },
 }
 ```
-
-## TODO and things I want to learn with this project
-
-- Logger
-- Telescope plugin
-- Testing plugin
-- Automatically active commands and not mess up all your keymaps
