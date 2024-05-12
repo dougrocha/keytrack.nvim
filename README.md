@@ -48,11 +48,15 @@ Currently, you have to opt-in for each keymap you want to track.
         { key = "<leader>a", desc = "Add harpoon file" },
         { key = "<leader>sf", desc = "Search Files with telescope" },
       },
+      --- Adds a suffix to the command description so you know it's being tracked
+      suffix = "(Tracked)"
     },
 }
 ```
 
-## TODO
+## TODO and things I want to learn with this project
 
 - Logger
 - Telescope plugin
+- Testing plugin
+- Automatically active commands and not mess up all your keymaps
