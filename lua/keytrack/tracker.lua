@@ -11,7 +11,7 @@ local data_path = vim.fn.stdpath("data")
 
 local M = {}
 
-M.data_path = data_path .. "\\count-with-me.json"
+M.data_path = data_path .. "\\keytrack.json"
 
 ---@type table<string, CommandWithCount>
 M.cached_tracked = {}

@@ -1,8 +1,8 @@
-local Tracker = require("count-with-me.tracker")
-local UI = require("count-with-me.ui")
-local Utils = require("count-with-me.util")
+local Tracker = require("keytrack.tracker")
+local UI = require("keytrack.ui")
+local Utils = require("keytrack.util")
 
----@class CountWithMe
+---@class KeyTrack
 local M = {}
 local H = {}
 
@@ -10,8 +10,8 @@ local H = {}
 ---@field key string: lhs of command
 ---@field desc string: description of command (may not be used)
 
----Config for CountWithMe
----@class CountWithMeConfig
+---Config for KeyTrack
+---@class KeyTrackConfig
 ---@field active? Track[]
 ---@field suffix? string: Add suffix to command description when tracking
 M.config = {
@@ -20,8 +20,8 @@ M.config = {
   suffix = "",
 }
 
----Count With Me Setup
----@param config CountWithMeConfig CountWithMe config table. See |CountWithMe.config|.
+---KeyTrack Setup
+---@param config KeyTrackConfig KeyTrack config table.
 M.setup = function(config)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.config), config or {})
 
@@ -31,16 +31,18 @@ M.setup = function(config)
   H.setup_autocommands()
 end
 
+---Open window
 M.open_window = function()
   UI.open()
 end
 
+---Close window
 M.close_window = function()
   UI.close()
 end
 
 H.setup_autocommands = function()
-  local au_group = vim.api.nvim_create_augroup("CountWithMe", {})
+  local au_group = vim.api.nvim_create_augroup("KeyTrack", {})
 
   local cb = vim.schedule_wrap(function()
     M.check_trackers()
@@ -50,7 +52,7 @@ H.setup_autocommands = function()
     group = au_group,
     pattern = "*",
     callback = cb,
-    desc = "Check all triggers",
+    desc = "Check all active trackers",
   })
 
   vim.api.nvim_create_autocmd({ "BufLeave", "VimLeave" }, {

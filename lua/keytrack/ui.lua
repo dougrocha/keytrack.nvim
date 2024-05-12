@@ -1,4 +1,4 @@
-local Tracker = require("count-with-me.tracker")
+local Tracker = require("keytrack.tracker")
 
 local M = {}
 
@@ -38,7 +38,7 @@ M.create_window = function()
   M.ui.win_id = win_id
 
   vim.api.nvim_set_option_value("scrolloff", 2, { win = win_id })
-  vim.api.nvim_set_option_value("filetype", "count-with-me", {
+  vim.api.nvim_set_option_value("filetype", "keytrack", {
     buf = buf_id,
   })
   vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf_id })

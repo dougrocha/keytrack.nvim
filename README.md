@@ -1,9 +1,11 @@
-# Nvim Count With Me
+# Key Tracker
+
+Delete those unused keybinds by tracking which ones you use.
 
 ## Table of Contents
 
 <!--toc:start-->
-- [Nvim Count With Me](#nvim-count-with-me)
+- [Key Tracker](#key-tracker)
   - [Table of Contents](#table-of-contents)
   - [Why](#why)
   - [Installation](#installation)
@@ -24,7 +26,7 @@ Mainly built to track how often I use my keymaps. In the end, I want to either d
 
 ```lua
 {
-    "dougrocha/count-with-me",
+    "dougrocha/keytrack.nvim",
     dependencies = {
         "nvim-lua/plenary.nvim",
     }
@@ -37,7 +39,7 @@ Currently, you have to opt-in for each keymap you want to track.
 
 ```lua
 {
-    "dougrocha/count-with-me",
+    "dougrocha/keytrack.nvim",
     dependencies = {
         "nvim-lua/plenary.nvim",
     }
@@ -45,8 +47,6 @@ Currently, you have to opt-in for each keymap you want to track.
       active = {
         { key = "<leader>a", desc = "Add harpoon file" },
         { key = "<leader>sf", desc = "Search Files with telescope" },
-        { key = "<leader>fw", desc = "Search for word under cursor" },
-        { key = "<leader>/", desc = "Grep workspace" },
       },
     },
 }

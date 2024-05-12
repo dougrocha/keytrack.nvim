@@ -1,1 +1,1 @@
-command! CountWithMe lua require('count-with-me').open_window()
+command! KeyTrack lua require('keytrack').open_window()
