@@ -18,7 +18,6 @@ you can remap it or delete it to simplify your neovim config.
   - [Why](#why)
   - [Installation](#installation)
   - [Basic Setup](#basic-setup)
-  - [TODO](#todo-and-things-i-want-to-learn-with-this-project)
 <!--toc:end-->
 
 ## Why
