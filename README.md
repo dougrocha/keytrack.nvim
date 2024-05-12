@@ -14,10 +14,12 @@ you can remap it or delete it to simplify your neovim config.
 
 <!--toc:start-->
 - [Key Tracker](#key-tracker)
+        - [Never lose track of your keybinds](#never-lose-track-of-your-keybinds)
   - [Table of Contents](#table-of-contents)
   - [Why](#why)
   - [Installation](#installation)
   - [Basic Setup](#basic-setup)
+    - [How to check on your trackers](#how-to-check-on-your-trackers)
 <!--toc:end-->
 
 ## Why
@@ -59,4 +61,10 @@ Currently, you have to opt-in for each keymap you want to track.
       suffix = "(Tracked)"
     },
 }
+```
+
+### How to check on your trackers
+
+```vim
+:KeyTrack
 ```
