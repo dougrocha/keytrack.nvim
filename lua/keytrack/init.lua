@@ -75,11 +75,11 @@ H.pre_track_cmds = {}
 ---Remove trackers and re-register them
 M.check_trackers = function()
   M.remove_all_trackers()
-  M.register_all_trackeres()
+  M.register_all_trackers()
 end
 
 ---Register multiple triggers
-M.register_all_trackeres = function()
+M.register_all_trackers = function()
   for _, tracker in ipairs(M.config.active) do
     M.register_trackers(tracker)
   end
@@ -151,7 +151,7 @@ M.register_trackers = function(tracker)
     end
   end
 
-  local desc = cmd.desc .. " (tracked)"
+  local desc = cmd.desc .. (M.config.suffix and (" " .. M.config.suffix))
   local opts = { nowait = true, desc = desc, noremap = cmd.noremap }
   vim.keymap.set("n", key, tracked_rhs, opts)
 end
