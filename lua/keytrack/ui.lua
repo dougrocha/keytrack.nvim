@@ -26,7 +26,7 @@ M.create_window = function()
     col = col,
     style = "minimal",
     border = "single",
-    title = "Count with me",
+    title = "Key Track",
     title_pos = "left",
   })
 
