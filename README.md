@@ -1,6 +1,12 @@
+<div align="center">
+
 # Key Tracker
 
-Keytrack.nvim is a plugin made to help you keep track of how many times you 
+##### Never lose track of your keybinds
+
+</div>
+
+Keytrack.nvim is a plugin made to help you keep track of how many times you
 use a command/keymap. Most likely if a command you're tracking has low usage,
 you can remap it or delete it to simplify your neovim config.
 
@@ -12,7 +18,7 @@ you can remap it or delete it to simplify your neovim config.
   - [Why](#why)
   - [Installation](#installation)
   - [Basic Setup](#basic-setup)
-  - [TODO](#todo)
+  - [TODO](#todo-and-things-i-want-to-learn-with-this-project)
 <!--toc:end-->
 
 ## Why
@@ -50,7 +56,7 @@ Currently, you have to opt-in for each keymap you want to track.
         { key = "<leader>a", desc = "Add harpoon file" },
         { key = "<leader>sf", desc = "Search Files with telescope" },
       },
-      --- Adds a suffix to the command description so you know it's being tracked
+      --- (Optional) Adds a suffix to the command description so you know it's being tracked
       suffix = "(Tracked)"
     },
 }
