@@ -1,6 +1,8 @@
 # Key Tracker
 
-Delete those unused keybinds by tracking which ones you use.
+Keytrack.nvim is a plugin made to help you keep track of how many times you 
+use a command/keymap. Most likely if a command you're tracking has low usage,
+you can remap it or delete it to simplify your neovim config.
 
 ## Table of Contents
 
