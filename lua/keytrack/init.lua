@@ -1,3 +1,4 @@
+local Config = require("keytrack.config")
 local Tracker = require("keytrack.tracker")
 local UI = require("keytrack.ui")
 local Utils = require("keytrack.util")
@@ -6,24 +7,10 @@ local Utils = require("keytrack.util")
 local M = {}
 local H = {}
 
----@class Track
----@field key string: lhs of command
----@field desc string: description of command (may not be used)
-
----Config for KeyTrack
----@class KeyTrackConfig
----@field active? Track[]
----@field suffix? string: Add suffix to command description when tracking
-M.config = {
-  -- Array of keybinds to keep track of
-  active = {},
-  suffix = "",
-}
-
 ---KeyTrack Setup
----@param config KeyTrackConfig KeyTrack config table.
-M.setup = function(config)
-  M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.config), config or {})
+---@param user_config Config
+M.setup = function(user_config)
+  Config.setup(user_config)
 
   Tracker.load_file()
 
@@ -80,14 +67,14 @@ end
 
 ---Register multiple triggers
 M.register_all_trackers = function()
-  for _, tracker in ipairs(M.config.active) do
+  for _, tracker in ipairs(Config.active) do
     M.register_trackers(tracker)
   end
 end
 
 ---Remove all trackers
 M.remove_all_trackers = function()
-  for _, trigger in ipairs(M.config.active) do
+  for _, trigger in ipairs(Config.active) do
     M.remove_tracker(trigger)
   end
 
@@ -151,7 +138,8 @@ M.register_trackers = function(tracker)
     end
   end
 
-  local desc = cmd.desc .. (M.config.suffix and (" " .. M.config.suffix))
+  local suffix = Config.suffix and (" " .. Config.suffix)
+  local desc = cmd.desc .. suffix
   local opts = { nowait = true, desc = desc, noremap = cmd.noremap }
   vim.keymap.set("n", key, tracked_rhs, opts)
 end
