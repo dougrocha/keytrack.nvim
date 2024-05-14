@@ -1,4 +1,4 @@
-local Tracker = require("keytrack.tracker")
+local Keys = require("keytrack.keys")
 
 local M = {}
 
@@ -55,7 +55,7 @@ M.open = function()
   ---@type string[]
   local data = {}
 
-  for _, cmd in pairs(Tracker.cached_tracked) do
+  for _, cmd in pairs(Keys.active_cmds_cache) do
     local lhs = cmd.lhs
     local count = cmd.count
     local desc = cmd.desc
