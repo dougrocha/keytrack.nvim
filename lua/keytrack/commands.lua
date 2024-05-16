@@ -26,7 +26,7 @@ M.setup_autocommands = function()
     group = au_group,
     pattern = "*",
     callback = cb,
-    desc = "Check all active trackers",
+    desc = "Ensure all keymaps are being tracked",
   })
 
   vim.api.nvim_create_autocmd({ "BufLeave", "VimLeave" }, {
@@ -55,14 +55,14 @@ end
 
 ---Register multiple triggers
 M.register_all_trackers = function()
-  for _, tracker in ipairs(Config.config.active) do
+  for _, tracker in ipairs(Config.config.keymaps) do
     M.register_cmd(tracker)
   end
 end
 
 ---Remove all trackers
 M.remove_all_trackers = function()
-  for _, trigger in ipairs(Config.config.active) do
+  for _, trigger in ipairs(Config.config.keymaps) do
     M.remove_cmd(trigger.key)
   end
 
