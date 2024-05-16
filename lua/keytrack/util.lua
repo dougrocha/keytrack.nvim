@@ -51,7 +51,7 @@ end
 ---@param str string
 ---@return string
 M.replace_term_codes = function(str)
-  return vim.api.nvim_replace_termcodes(str, true, true, true)
+  return vim.api.nvim_replace_termcodes(str, true, false, true)
 end
 
 ---@param x string
@@ -61,37 +61,44 @@ M.keytrans = function(x)
   return res
 end
 
----Clean up rhs by removing `<Cmd>` and `<CR>`
----@param rhs_str string
----@return string
-M.clean_up_rhs = function(rhs_str)
-  local rhs = string.gsub(rhs_str, "<Cmd>", "")
-  rhs = string.gsub(rhs, "<CR>", "")
-  return rhs
+---@param cmd string
+M.sanitize_cmd = function(cmd)
+  cmd = (cmd .. ""):gsub("%{.*%}$", ""):gsub("%[.*%]$", "")
+
+  if vim.startswith(cmd:lower(), "<cmd>") then
+    cmd = cmd:sub(6)
+  elseif vim.startswith(cmd, ":") then
+    cmd = cmd:sub(2)
+  end
+
+  if vim.endswith(cmd:lower(), "<cr>") then
+    cmd = cmd:sub(1, #cmd - 4)
+  elseif vim.endswith(cmd, "\r") then
+    cmd = cmd:sub(1, #cmd - 2)
+  end
+
+  return vim.trim(cmd)
 end
 
----Parse cmd and args for rhs
----@param str string
----@return string
----@return string[]
-M.parse_cmd_and_args = function(str)
-  -- Split the string into words
-  local words = {}
-  for word in str:gmatch("%S+") do
-    table.insert(words, word)
+---@param cmd string
+---@param noremap boolean
+M.execute_cmd = function(keys, noremap)
+  local mode = "t"
+  if noremap then
+    mode = mode .. "m"
   end
 
-  -- Extract the first word
-  ---@type string
-  local cmd = words[1]
-
-  -- Extract the arguments (if any)
-  local args = {}
-  for i = 2, #words do
-    table.insert(args, words[i])
+  if vim.startswith(keys, ":") or vim.startswith(keys, "<cmd>") then
+    vim.cmd(M.sanitize_cmd(keys))
   end
 
-  return cmd, args
+  local is_expr, evaluated_cmd = pcall(vim.api.nvim_eval, keys)
+
+  if is_expr then
+    keys = evaluated_cmd
+  end
+
+  vim.api.nvim_feedkeys(M.replace_term_codes(keys), mode, true)
 end
 
 return M

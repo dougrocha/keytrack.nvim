@@ -113,23 +113,13 @@ M.register_cmd = function(command)
 
     if cmd.callback then
       cmd.callback()
-      return
-    end
-
-    -- some workaround not really sure if its needed at this point
-    -- used to make cmds "<Cmd>do things<CR>" work
-    if cmd.rhs:find("<Cmd>") then
-      local parsed_rhs = Utils.clean_up_rhs(cmd.rhs)
-      local parsed_cmd, args = Utils.parse_cmd_and_args(parsed_rhs)
-      vim.cmd({ cmd = parsed_cmd, args = args })
     else
-      local rhs = Utils.replace_term_codes(cmd.rhs)
-      vim.api.nvim_feedkeys(rhs, "mit", false)
+      Utils.execute_cmd(cmd.rhs, cmd.noremap)
     end
   end
 
   local suffix = Config.config.suffix and (" " .. Config.config.suffix)
-  local desc = cmd.desc .. suffix
+  local desc = (command.desc or cmd.desc) .. suffix
   local opts = { nowait = true, desc = desc, noremap = cmd.noremap }
   vim.keymap.set("n", key, tracked_rhs, opts)
 end
