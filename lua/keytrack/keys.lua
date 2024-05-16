@@ -16,16 +16,16 @@ M.load_file = function()
   local ok, data = pcall(read_file, data_path)
 
   if not ok then
-    M.active_cmds_cache = {}
-    pcall(write_file, data_path, vim.fn.json_encode(M.active_cmds_cache))
+    M.active_cmds = {}
+    pcall(write_file, data_path, vim.fn.json_encode(M.active_cmds))
     return
   end
 
-  M.active_cmds_cache = data
+  M.active_cmds = data
 end
 
 M.save_to_file = function()
-  local data = M.active_cmds_cache
+  local data = M.active_cmds
 
   -- switch each <Leader> value with the `<Leader>` string to make it easier to ready in file
   for _, val in pairs(data) do
@@ -45,7 +45,7 @@ end
 
 ---Keep track of active commands with count, so not to write to file too often
 ---@type table<string, CommandWithCount>
-M.active_cmds_cache = {}
+M.active_cmds = {}
 
 ---Transform cmd to key string
 ---@param cmd Command|string
@@ -58,7 +58,7 @@ end
 M.add_entry = function(cmd)
   local key = cmd_to_key(cmd)
 
-  if M.active_cmds_cache[key] then
+  if M.active_cmds[key] then
     return
   end
 
@@ -70,7 +70,7 @@ M.add_entry = function(cmd)
   }
 
   -- track things here
-  M.active_cmds_cache[key] = entry
+  M.active_cmds[key] = entry
 end
 
 ---Remove command
@@ -78,11 +78,11 @@ end
 M.delete_command = function(cmd)
   local key = cmd_to_key(cmd)
 
-  if M.active_cmds_cache[key] then
+  if M.active_cmds[key] then
     return
   end
 
-  M.active_cmds_cache[key] = nil
+  M.active_cmds[key] = nil
 end
 
 ---Increment command
@@ -92,10 +92,10 @@ M.increment_cmd = function(cmd, count)
   count = count or 1
 
   local key = cmd_to_key(cmd)
-  local prev_cmd = M.active_cmds_cache[key]
+  local prev_cmd = M.active_cmds[key]
 
   local prev_count = prev_cmd.count or 0
-  M.active_cmds_cache[key] = {
+  M.active_cmds[key] = {
     count = prev_count + count,
     lhs = key:gsub(" ", "<leader>"),
     desc = prev_cmd.desc,
@@ -107,9 +107,9 @@ end
 ---@param cmd Command
 M.reset_entry = function(cmd)
   local key = cmd_to_key(cmd)
-  local prev_cmd = M.active_cmds_cache[key]
+  local prev_cmd = M.active_cmds[key]
 
-  M.active_cmds_cache[key] = {
+  M.active_cmds[key] = {
     count = 0,
     lhs = key:gsub(" ", "<leader>"),
     desc = prev_cmd.desc,

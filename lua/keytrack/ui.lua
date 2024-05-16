@@ -55,7 +55,7 @@ M.open = function()
   ---@type string[]
   local data = {}
 
-  for _, cmd in pairs(Keys.active_cmds_cache) do
+  for _, cmd in pairs(Keys.active_cmds) do
     local lhs = cmd.lhs
     local count = cmd.count
     local desc = cmd.desc
