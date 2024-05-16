@@ -70,7 +70,7 @@ M.remove_all_trackers = function()
   M.cmds_cache = Utils.get_all_commands("n")
 end
 
----@param key string
+---@param key string: Most likely the lhs of a command
 M.remove_cmd = function(key)
   key = Utils.replace_term_codes(key)
   key = Utils.keytrans(key)
