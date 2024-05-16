@@ -24,9 +24,4 @@ M.close_window = function()
   UI.close()
 end
 
----@param cmd {key: string, desc: string}
-M.register = function(cmd)
-  Commands.register_cmd(cmd)
-end
-
 return M
