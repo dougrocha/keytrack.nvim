@@ -105,6 +105,9 @@ M.register_cmd = function(command)
 
   -- save command
   M.original_cmds[key] = cmd
+  if #cmd.desc == 0 then
+    cmd.desc = command.desc
+  end
   Keys.add_entry(cmd)
 
   local tracked_rhs = function()
@@ -119,7 +122,7 @@ M.register_cmd = function(command)
   end
 
   local suffix = Config.config.suffix and (" " .. Config.config.suffix)
-  local desc = (command.desc or cmd.desc) .. suffix
+  local desc = cmd.desc and cmd.desc .. suffix
   local opts = { nowait = true, desc = desc, noremap = cmd.noremap }
   vim.keymap.set("n", key, tracked_rhs, opts)
 end
