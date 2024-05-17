@@ -65,8 +65,16 @@ Currently, you have to opt-in for each keymap you want to track.
 }
 ```
 
-### How to check on your trackers
+### Usage
+
+Using the KeyTrack popup:
 
 ```vim
 :KeyTrack
+```
+
+Using Telescope:
+
+```vim
+:Telescope KeyTrack
 ```
