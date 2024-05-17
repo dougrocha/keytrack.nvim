@@ -1,5 +1,7 @@
 # Todo and goals
 
+- [ ] fix weird bug that causes telescope commands to be untracked forever
+
 - [ ] Add other keys that don't use the leader key
 - [ ] Add macros
 - [ ] Automatically active commands and not mess up all your keymaps

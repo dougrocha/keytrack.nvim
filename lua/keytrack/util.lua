@@ -80,25 +80,33 @@ M.sanitize_cmd = function(cmd)
   return vim.trim(cmd)
 end
 
----@param cmd string
+---@param keys string
 ---@param noremap boolean
 M.execute_cmd = function(keys, noremap)
+  local count = vim.v.count1
+
   local mode = "t"
   if noremap then
     mode = mode .. "m"
   end
 
   if vim.startswith(keys, ":") or vim.startswith(keys, "<cmd>") then
-    vim.cmd(M.sanitize_cmd(keys))
+    vim.api.nvim_cmd({
+      cmd = M.sanitize_cmd(keys),
+      count = count,
+    }, {
+      output = false,
+    })
   end
 
   local is_expr, evaluated_cmd = pcall(vim.api.nvim_eval, keys)
 
   if is_expr then
     keys = evaluated_cmd
+    mode = "nx"
   end
 
-  vim.api.nvim_feedkeys(M.replace_term_codes(keys), mode, true)
+  vim.api.nvim_feedkeys(count .. M.replace_term_codes(keys), mode, true)
 end
 
 return M
