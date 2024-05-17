@@ -33,6 +33,8 @@ Mainly built to track how often I use my keymaps. In the end, I want to either d
 
 - Neovim 0.8.0+
 
+With `lazy.nvim`
+
 ```lua
 {
     "dougrocha/keytrack.nvim",
