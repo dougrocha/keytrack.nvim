@@ -1,4 +1,4 @@
-*keytrack.nvim.txt*         For NVIM >= v0.8.0        Last change: 2024 May 16
+*keytrack.nvim.txt*         For NVIM >= v0.8.0        Last change: 2024 May 17
 
 ==============================================================================
 Table of Contents                            *keytrack.nvim-table-of-contents*
@@ -36,6 +36,8 @@ delete or remap certain keymaps that I don’t use often.
 INSTALLATION                                      *keytrack.nvim-installation*
 
 - Neovim 0.8.0+
+
+With `lazy.nvim`
 
 >lua
     {
