@@ -91,10 +91,15 @@ M.execute_cmd = function(keys, noremap)
   end
 
   if vim.startswith(keys, ":") or vim.startswith(keys, "<cmd>") then
-    vim.api.nvim_cmd({
+    local cmd = {
       cmd = M.sanitize_cmd(keys),
-      count = count,
-    }, {
+    }
+
+    if count > 0 then
+      cmd.count = count
+    end
+
+    vim.api.nvim_cmd(cmd, {
       output = false,
     })
   end
@@ -106,7 +111,13 @@ M.execute_cmd = function(keys, noremap)
     mode = "nx"
   end
 
-  vim.api.nvim_feedkeys(count .. M.replace_term_codes(keys), mode, true)
+  local lhs = M.replace_term_codes(keys)
+
+  if count > 0 then
+    lhs = count .. lhs
+  end
+
+  vim.api.nvim_feedkeys(lhs, mode, true)
 end
 
 return M
