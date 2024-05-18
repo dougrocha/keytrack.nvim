@@ -83,7 +83,7 @@ end
 ---@param keys string
 ---@param noremap boolean
 M.execute_cmd = function(keys, noremap)
-  local count = vim.v.count1
+  local count = vim.v.count
 
   local mode = "t"
   if noremap then
