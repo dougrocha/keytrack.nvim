@@ -13,7 +13,7 @@ M.setup = function(user_config)
 
   Keys.load_file()
 
-  Commands.setup_autocommands()
+  Commands.setup()
 end
 
 M.open_window = function()

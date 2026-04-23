@@ -27,16 +27,13 @@ Mainly built to track how often I use my keymaps. In the end, I want to either d
 
 ## Installation
 
-- Neovim 0.8.0+
+- Neovim 0.12.0+
 
 With `lazy.nvim`
 
 ```lua
 {
     "dougrocha/keytrack.nvim",
-    dependencies = {
-        "nvim-lua/plenary.nvim",
-    }
 }
 ```
 
@@ -47,11 +44,8 @@ Currently, you have to opt-in for each keymap you want to track.
 ```lua
 {
     "dougrocha/keytrack.nvim",
-    dependencies = {
-        "nvim-lua/plenary.nvim",
-    }
     opts = {
-      active = {
+      keymaps = {
         { key = "<leader>a", desc = "Add harpoon file" },
         { key = "<leader>sf", desc = "Search Files with telescope" },
       },
@@ -63,14 +57,12 @@ Currently, you have to opt-in for each keymap you want to track.
 
 ## Usage
 
-Using the KeyTrack popup:
+Open the KeyTrack popup window:
 
 ```vim
 :KeyTrack
 ```
 
-Using Telescope:
+The popup shows all tracked keymaps sorted by usage count. Press `q` or `<Esc>` to close.
 
-```vim
-:Telescope KeyTrack
-```
+Data is saved automatically to `$XDG_DATA_HOME/nvim/keytrack/keytrack.json` on `BufLeave` and `VimLeave`.

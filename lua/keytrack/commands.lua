@@ -10,7 +10,7 @@ local M = {}
 M.cmds_cache = {}
 
 M.setup = function()
-  M.cmds_cache = Utils.get_all_commands("m")
+  M.cmds_cache = Utils.get_all_commands("n")
 
   M.setup_autocommands()
 end
@@ -121,8 +121,8 @@ M.register_cmd = function(command)
     end
   end
 
-  local suffix = Config.config.suffix and (" " .. Config.config.suffix)
-  local desc = cmd.desc and cmd.desc .. suffix
+  local suffix = (Config.config.suffix ~= "") and (" " .. Config.config.suffix) or ""
+  local desc = cmd.desc and (cmd.desc .. suffix)
   local opts = { nowait = true, desc = desc, noremap = cmd.noremap }
   vim.keymap.set("n", key, tracked_rhs, opts)
 end

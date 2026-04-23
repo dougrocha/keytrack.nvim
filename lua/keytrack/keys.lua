@@ -1,15 +1,23 @@
-local Path = require("plenary.path")
-
-local data_path = vim.fn.stdpath("data") .. "\\keytrack.json"
+local data_path = vim.fs.joinpath(vim.fn.stdpath("data"), "keytrack", "keytrack.json")
 
 local M = {}
 
+---@param file_path string
+---@param encoded_json string
 local function write_file(file_path, encoded_json)
-  Path:new(file_path):write(encoded_json, "w")
+  vim.fn.mkdir(vim.fn.fnamemodify(file_path, ":h"), "p")
+  local fd = assert(io.open(file_path, "w"))
+  fd:write(encoded_json)
+  fd:close()
 end
 
+---@param file_path string
+---@return table
 local function read_file(file_path)
-  return vim.fn.json_decode(Path:new(file_path):read())
+  local fd = assert(io.open(file_path, "r"))
+  local content = fd:read("*a")
+  fd:close()
+  return vim.fn.json_decode(content)
 end
 
 M.load_file = function()
@@ -25,9 +33,9 @@ M.load_file = function()
 end
 
 M.save_to_file = function()
-  local data = M.active_cmds
+  local data = vim.deepcopy(M.active_cmds)
 
-  -- switch each <Leader> value with the `<Leader>` string to make it easier to ready in file
+  -- switch each leader byte with the `<leader>` string to make it easier to read in file
   for _, val in pairs(data) do
     val.lhs = val.lhs:gsub(" ", "<leader>")
   end
@@ -78,7 +86,7 @@ end
 M.delete_command = function(cmd)
   local key = cmd_to_key(cmd)
 
-  if M.active_cmds[key] then
+  if not M.active_cmds[key] then
     return
   end
 

@@ -9,7 +9,7 @@ local M = {}
 
 ---Returns all possible commands in normal mode (global and current buffer)
 ---@param mode string: Mode
----@return Command[]
+---@return table<string, Command>
 M.get_all_commands = function(mode)
   ---@type Command[]
   local res = {}
@@ -102,6 +102,7 @@ M.execute_cmd = function(keys, noremap)
     vim.api.nvim_cmd(cmd, {
       output = false,
     })
+    return
   end
 
   local is_expr, evaluated_cmd = pcall(vim.api.nvim_eval, keys)

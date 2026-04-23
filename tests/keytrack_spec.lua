@@ -1,6 +1,6 @@
 ---@type Config
 local config = {
-  active = {
+  keymaps = {
     { key = "<leader>a", desc = "Add harpoon file" },
     { key = "<leader>sf", desc = "Search Files with telescope" },
   },
